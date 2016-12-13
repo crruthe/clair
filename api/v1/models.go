@@ -41,6 +41,7 @@ type Layer struct {
 	ParentName       string            `json:"ParentName,omitempty"`
 	Format           string            `json:"Format,omitempty"`
 	IndexedByVersion int               `json:"IndexedByVersion,omitempty"`
+	ImageRef         string            `json:"ImageRef,omitempty"`
 	Features         []Feature         `json:"Features,omitempty"`
 }
 
@@ -48,6 +49,7 @@ func LayerFromDatabaseModel(dbLayer database.Layer, withFeatures, withVulnerabil
 	layer := Layer{
 		Name:             dbLayer.Name,
 		IndexedByVersion: dbLayer.EngineVersion,
+		ImageRef:         dbLayer.ImageRef,
 	}
 
 	if dbLayer.Parent != nil {

@@ -32,6 +32,7 @@ type Layer struct {
 
 	Name          string
 	EngineVersion int
+	ImageRef      string
 	Parent        *Layer
 	Namespace     *Namespace
 	Features      []FeatureVersion

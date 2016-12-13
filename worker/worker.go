@@ -50,7 +50,7 @@ var (
 // then stores everything in the database.
 // TODO(Quentin-M): We could have a goroutine that looks for layers that have been analyzed with an
 // older engine version and that processes them.
-func Process(datastore database.Datastore, imageFormat, name, parentName, path string, headers map[string]string) error {
+func Process(datastore database.Datastore, imageFormat, name, parentName, path string, headers map[string]string, imageRef string) error {
 	// Verify parameters.
 	if name == "" {
 		return cerrors.NewBadRequestError("could not process a layer which does not have a name")
@@ -75,7 +75,7 @@ func Process(datastore database.Datastore, imageFormat, name, parentName, path s
 
 	if err == cerrors.ErrNotFound {
 		// New layer case.
-		layer = database.Layer{Name: name, EngineVersion: Version}
+		layer = database.Layer{Name: name, EngineVersion: Version, ImageRef: imageRef}
 
 		// Retrieve the parent if it has one.
 		// We need to get it with its Features in order to diff them.

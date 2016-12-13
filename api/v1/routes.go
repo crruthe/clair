@@ -109,7 +109,7 @@ func postLayer(w http.ResponseWriter, r *http.Request, p httprouter.Params, ctx 
 		return postLayerRoute, http.StatusBadRequest
 	}
 
-	err = worker.Process(ctx.Store, request.Layer.Format, request.Layer.Name, request.Layer.ParentName, request.Layer.Path, request.Layer.Headers)
+	err = worker.Process(ctx.Store, request.Layer.Format, request.Layer.Name, request.Layer.ParentName, request.Layer.Path, request.Layer.Headers, request.Layer.ImageRef)
 	if err != nil {
 		if err == utils.ErrCouldNotExtract ||
 			err == utils.ErrExtractedFileTooBig ||
@@ -134,6 +134,7 @@ func postLayer(w http.ResponseWriter, r *http.Request, p httprouter.Params, ctx 
 		Headers:          request.Layer.Headers,
 		Format:           request.Layer.Format,
 		IndexedByVersion: worker.Version,
+		ImageRef:         request.Layer.ImageRef,
 	}})
 	return postLayerRoute, http.StatusCreated
 }
