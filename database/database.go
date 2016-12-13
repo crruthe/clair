@@ -69,6 +69,10 @@ type Datastore interface {
 	ListNamespaces() ([]Namespace, error)
 
 	// # Layer
+	// ListLayers returns the entire list of layers.
+	ListLayers() ([]Layer, error)
+
+	// # Layer
 	// InsertLayer stores a Layer in the database.
 	// A Layer is uniquely identified by its Name. The Name and EngineVersion fields are mandatory.
 	// If a Parent is specified, it is expected that it has been retrieved using FindLayer.
