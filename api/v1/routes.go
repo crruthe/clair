@@ -153,7 +153,7 @@ func getLayer(w http.ResponseWriter, r *http.Request, p httprouter.Params, ctx *
 			writeResponse(w, r, http.StatusInternalServerError, NamespaceEnvelope{Error: &Error{err.Error()}})
 			return getLayerRoute, http.StatusInternalServerError
 		}
-		for _, dbLayers := range dbLayers {
+		for _, dbLayer := range dbLayers {
 			layers = append(layers, Layer{Name: dbLayer.Name, ImageRef: dbLayer.ImageRef})
 		}
 	} else {
