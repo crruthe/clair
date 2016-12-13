@@ -143,33 +143,32 @@ func getLayer(w http.ResponseWriter, r *http.Request, p httprouter.Params, ctx *
 	_, withFeatures := r.URL.Query()["features"]
 	_, withVulnerabilities := r.URL.Query()["vulnerabilities"]
 
-	layerName := p.ByName("layerName")
+	dbLayer, err := ctx.Store.FindLayer(p.ByName("layerName"), withFeatures, withVulnerabilities)
+	if err == cerrors.ErrNotFound {
+		writeResponse(w, r, http.StatusNotFound, LayerEnvelope{Error: &Error{err.Error()}})
+		return getLayerRoute, http.StatusNotFound
+	} else if err != nil {
+		writeResponse(w, r, http.StatusInternalServerError, LayerEnvelope{Error: &Error{err.Error()}})
+		return getLayerRoute, http.StatusInternalServerError
+	}
+
+	layer := LayerFromDatabaseModel(dbLayer, withFeatures, withVulnerabilities)
+
+	writeResponse(w, r, http.StatusOK, LayerEnvelope{Layer: &layer})
+	return getLayerRoute, http.StatusOK
+}
+
+func getLayers(w http.ResponseWriter, r *http.Request, p httprouter.Params, ctx *context.RouteContext) (string, int) {
 	var layers []Layer
 
-	if layerName == "" {
-		dbLayers, err := ctx.Store.ListLayers()
+	dbLayers, err := ctx.Store.ListLayers()
 
-		if err != nil {
-			writeResponse(w, r, http.StatusInternalServerError, LayerListEnvelope{Error: &Error{err.Error()}})
-			return getLayerRoute, http.StatusInternalServerError
-		}
-		for _, dbLayer := range dbLayers {
-			layers = append(layers, Layer{Name: dbLayer.Name, ImageRef: dbLayer.ImageRef})
-		}
-	} else {
-		dbLayer, err := ctx.Store.FindLayer(p.ByName("layerName"), withFeatures, withVulnerabilities)
-		
-		if err == cerrors.ErrNotFound {
-			writeResponse(w, r, http.StatusNotFound, LayerListEnvelope{Error: &Error{err.Error()}})
-			return getLayerRoute, http.StatusNotFound
-		} else if err != nil {
-			writeResponse(w, r, http.StatusInternalServerError, LayerListEnvelope{Error: &Error{err.Error()}})
-			return getLayerRoute, http.StatusInternalServerError
-		}
-
-		layer := LayerFromDatabaseModel(dbLayer, withFeatures, withVulnerabilities)
-		layers = append(layers, layer)
-
+	if err != nil {
+		writeResponse(w, r, http.StatusInternalServerError, LayerListEnvelope{Error: &Error{err.Error()}})
+		return getLayerRoute, http.StatusInternalServerError
+	}
+	for _, dbLayer := range dbLayers {
+		layers = append(layers, Layer{Name: dbLayer.Name, ImageRef: dbLayer.ImageRef})
 	}
 	writeResponse(w, r, http.StatusOK, LayerListEnvelope{Layers: &layers})
 	return getLayerRoute, http.StatusOK

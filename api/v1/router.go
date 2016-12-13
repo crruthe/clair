@@ -28,6 +28,7 @@ func NewRouter(ctx *context.RouteContext) *httprouter.Router {
 	// Layers
 	router.POST("/layers", context.HTTPHandler(postLayer, ctx))
 	router.GET("/layers/:layerName", context.HTTPHandler(getLayer, ctx))
+	router.GET("/layers", context.HTTPHandler(getLayers, ctx))
 	router.DELETE("/layers/:layerName", context.HTTPHandler(deleteLayer, ctx))
 
 	// Namespaces
