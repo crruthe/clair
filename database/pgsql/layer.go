@@ -24,6 +24,31 @@ import (
 	"github.com/guregu/null/zero"
 )
 
+
+func (pgSQL *pgSQL) ListLayers() (layers []database.Layer, err error) {
+	rows, err := pgSQL.Query(listLayer)
+	if err != nil {
+		return layers, handleError("listLayer", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var layer database.Layer
+
+		err = rows.Scan(&layer.Name, &layer.ImageRef)
+		if err != nil {
+			return layers, handleError("listLayer.Scan()", err)
+		}
+
+		layers = append(layers, layer)
+	}
+	if err = rows.Err(); err != nil {
+		return layers, handleError("listLayer.Rows()", err)
+	}
+
+	return layers, err
+}
+
 func (pgSQL *pgSQL) FindLayer(name string, withFeatures, withVulnerabilities bool) (database.Layer, error) {
 	subquery := "all"
 	if withFeatures {

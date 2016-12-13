@@ -143,18 +143,35 @@ func getLayer(w http.ResponseWriter, r *http.Request, p httprouter.Params, ctx *
 	_, withFeatures := r.URL.Query()["features"]
 	_, withVulnerabilities := r.URL.Query()["vulnerabilities"]
 
-	dbLayer, err := ctx.Store.FindLayer(p.ByName("layerName"), withFeatures, withVulnerabilities)
-	if err == cerrors.ErrNotFound {
-		writeResponse(w, r, http.StatusNotFound, LayerEnvelope{Error: &Error{err.Error()}})
-		return getLayerRoute, http.StatusNotFound
-	} else if err != nil {
-		writeResponse(w, r, http.StatusInternalServerError, LayerEnvelope{Error: &Error{err.Error()}})
-		return getLayerRoute, http.StatusInternalServerError
+	layerName := p.ByName("layerName")
+	var layers []Layer
+
+	if layerName == "" {
+		dbLayers, err := ctx.Store.ListLayers()
+
+		if err != nil {
+			writeResponse(w, r, http.StatusInternalServerError, NamespaceEnvelope{Error: &Error{err.Error()}})
+			return getLayerRoute, http.StatusInternalServerError
+		}
+		for _, dbLayers := range dbLayers {
+			layers = append(layers, Layer{Name: dbLayer.Name, ImageRef: dbLayer.ImageRef})
+		}
+	} else {
+		dbLayer, err := ctx.Store.FindLayer(p.ByName("layerName"), withFeatures, withVulnerabilities)
+		
+		if err == cerrors.ErrNotFound {
+			writeResponse(w, r, http.StatusNotFound, LayerEnvelope{Error: &Error{err.Error()}})
+			return getLayerRoute, http.StatusNotFound
+		} else if err != nil {
+			writeResponse(w, r, http.StatusInternalServerError, LayerEnvelope{Error: &Error{err.Error()}})
+			return getLayerRoute, http.StatusInternalServerError
+		}
+
+		layer := LayerFromDatabaseModel(dbLayer, withFeatures, withVulnerabilities)
+		layers = append(layers, layer)
+
 	}
-
-	layer := LayerFromDatabaseModel(dbLayer, withFeatures, withVulnerabilities)
-
-	writeResponse(w, r, http.StatusOK, LayerEnvelope{Layer: &layer})
+	writeResponse(w, r, http.StatusOK, LayerEnvelope{Layers: &layers})
 	return getLayerRoute, http.StatusOK
 }
 

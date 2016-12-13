@@ -112,6 +112,8 @@ const (
 						AND v.namespace_id = vn.id
 						AND v.deleted_at IS NULL`
 
+	listLayer   = `SELECT name, image_ref FROM Layer WHERE image_ref != ''`
+
 	insertLayer = `
 		INSERT INTO Layer(name, engineversion, image_ref, parent_id, namespace_id, created_at)
     VALUES($1, $2, $3, $4, $5, CURRENT_TIMESTAMP)
