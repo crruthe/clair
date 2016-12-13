@@ -150,7 +150,7 @@ func getLayer(w http.ResponseWriter, r *http.Request, p httprouter.Params, ctx *
 		dbLayers, err := ctx.Store.ListLayers()
 
 		if err != nil {
-			writeResponse(w, r, http.StatusInternalServerError, NamespaceEnvelope{Error: &Error{err.Error()}})
+			writeResponse(w, r, http.StatusInternalServerError, LayerListEnvelope{Error: &Error{err.Error()}})
 			return getLayerRoute, http.StatusInternalServerError
 		}
 		for _, dbLayer := range dbLayers {
@@ -160,10 +160,10 @@ func getLayer(w http.ResponseWriter, r *http.Request, p httprouter.Params, ctx *
 		dbLayer, err := ctx.Store.FindLayer(p.ByName("layerName"), withFeatures, withVulnerabilities)
 		
 		if err == cerrors.ErrNotFound {
-			writeResponse(w, r, http.StatusNotFound, LayerEnvelope{Error: &Error{err.Error()}})
+			writeResponse(w, r, http.StatusNotFound, LayerListEnvelope{Error: &Error{err.Error()}})
 			return getLayerRoute, http.StatusNotFound
 		} else if err != nil {
-			writeResponse(w, r, http.StatusInternalServerError, LayerEnvelope{Error: &Error{err.Error()}})
+			writeResponse(w, r, http.StatusInternalServerError, LayerListEnvelope{Error: &Error{err.Error()}})
 			return getLayerRoute, http.StatusInternalServerError
 		}
 
@@ -171,7 +171,7 @@ func getLayer(w http.ResponseWriter, r *http.Request, p httprouter.Params, ctx *
 		layers = append(layers, layer)
 
 	}
-	writeResponse(w, r, http.StatusOK, LayerEnvelope{Layers: &layers})
+	writeResponse(w, r, http.StatusOK, LayerListEnvelope{Layers: &layers})
 	return getLayerRoute, http.StatusOK
 }
 

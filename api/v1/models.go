@@ -289,6 +289,11 @@ func VulnerabilityWithLayersFromDatabaseModel(dbVuln database.Vulnerability) Vul
 }
 
 type LayerEnvelope struct {
+	Layer *Layer `json:"Layer,omitempty"`
+	Error *Error `json:"Error,omitempty"`
+}
+
+type LayerListEnvelope struct {
 	Layers *[]Layer `json:"Layers,omitempty"`
 	Error  *Error   `json:"Error,omitempty"`
 }
